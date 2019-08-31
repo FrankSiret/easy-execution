@@ -1,5 +1,5 @@
 # easy-execution
-shortcuts of programs or folders to open easily, made in qt qml
+shortcuts to programs or folders to open easily, made in qt qml
 
 # mode of use (english)
 1. compile project with QtCreator 5.10 or higher
