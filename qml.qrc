@@ -1,0 +1,25 @@
+<RCC>
+    <qresource prefix="/">
+        <file>main.qml</file>
+        <file>open.qml</file>
+        <file>qtquickcontrols2.conf</file>
+        <file>config.qml</file>
+        <file>img/add.png</file>
+        <file>img/edit.png</file>
+        <file>img/garbage-1.png</file>
+        <file>img/edit.svg</file>
+        <file>img/garbage-1.svg</file>
+        <file>img/garbage-2.svg</file>
+        <file>img/001-edit.svg</file>
+        <file>img/013-edit-2.svg</file>
+        <file>img/resizeDiagonal.png</file>
+        <file>img/resize.svg</file>
+        <file>img/closePopup.png</file>
+        <file>img/closePopup_click.png</file>
+        <file>img/closePopup_hover.png</file>
+        <file>img/settings1.svg</file>
+        <file>img/settings2.svg</file>
+        <file>img/settings3.svg</file>
+        <file>img/back.jpg</file>
+    </qresource>
+</RCC>
