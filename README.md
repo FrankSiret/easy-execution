@@ -1,3 +1,11 @@
+# Motivación
+!!! A veses no les ha pasado que utilizan una carpeta demasiadas veses, y que hay que buscarla en el directorio que es un proceso largo y tedioso, claro que pueden agregar accesos directos, pero cuantos en total ehh, ademas puede que un reproductor de música, e.g., AIMP lo utilicen con frecuencia y les pasa lo mismo (que tedioso es buscarlo y ejecutarlo)...
+Esta aplicacion propone crear un como si fuera un atajo de teclado pero mejor aún, pueden ejecutar en por ejemplo en Window, en Win+R algo tan facil como "ex aimp" para el AIMP, o "ex por" para la carpeta de proyectos de programación.
+
+# Motivation
+!!! Sometimes it has not happened to them that they use a folder too many times, and that it is necessary to look for it in the directory that is a long and tedious process, of course they can add shortcuts, but how many in total ehh, also a music player may, eg, AIMP use it frequently and the same thing happens to them (how tedious it is to look for it and execute it) ...
+This application proposes to create an as if it were a keyboard shortcut but better yet, you can execute in for example in Window, in Win + R something as easy as "ex aimp" for the AIMP, or "ex for" for the projects folder of programming.
+
 # easy-execution
 shortcuts to programs or folders to open easily, made in qt qml
 
