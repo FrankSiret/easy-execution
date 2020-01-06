@@ -18,6 +18,8 @@ public:
     Q_INVOKABLE QString getPath();
     Q_INVOKABLE bool isValid(QString path);
     Q_INVOKABLE void regedit(QString alias);
+    Q_INVOKABLE bool isRegister(QString alias);
+    Q_INVOKABLE void deleteRegister(QString alias);
 
     enum Option {
         OPEN = 1,
@@ -32,6 +34,7 @@ public:
 signals:
     void appendProgram(QString _programName, QString _aliasName);
     void quitProgram();
+    void endList();
 
 public slots:
 

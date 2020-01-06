@@ -19,6 +19,7 @@ void EasyExecution::getCompleteList() {
         if(!_programName.isEmpty())
             emit appendProgram(_programName, _aliasName);
     }
+    emit endList();
 }
 
 void EasyExecution::regedit(QString alias) {
@@ -27,6 +28,19 @@ void EasyExecution::regedit(QString alias) {
     set.setValue("Default", qApp->arguments()[0]);
     set.setValue("Path", qApp->applicationFilePath());
     set.endGroup();
+}
+
+bool EasyExecution::isRegister(QString alias)
+{
+    QSettings set(QString("HKEY_CURRENT_USER\\Software\\Microsoft\\Windows\\CurrentVersion\\App Paths\\%1.exe").arg(alias), QSettings::NativeFormat);
+    QString value = set.value("Default", "").toString();
+    return !value.isEmpty();
+}
+
+void EasyExecution::deleteRegister(QString alias)
+{
+    QSettings set("HKEY_CURRENT_USER\\Software\\Microsoft\\Windows\\CurrentVersion\\App Paths", QSettings::NativeFormat);
+    set.remove(QString("%1.exe").arg(alias));
 }
 
 QString EasyExecution::getPath() {

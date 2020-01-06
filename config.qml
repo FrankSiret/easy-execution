@@ -7,23 +7,32 @@ import easy_execution_model 1.1
 ApplicationWindow {
     id: window
     visible: true
-    width: 560
+    width: 600
     height: 500
 
-    minimumWidth: 500
-    minimumHeight: 200
+    minimumWidth: 560
+    minimumHeight: 500
 
     color: "transparent"
 
     background: Rectangle {
         radius: 4
         color: "#303030"
+        border.color: Qt.darker("#303030")
+        border.width: 2
     }
+
+    property var _model: []
 
     EasyExecution {
         id: easyExecution
         onAppendProgram: {
-            listModel.append({"programName": _programName, "aliasName": _aliasName})
+            //listModel.append({"programName": _programName, "aliasName": _aliasName})
+            _model.push([_programName, _aliasName])
+        }
+        onEndList: {
+            //_model = listModel
+            restore()
         }
         onQuitProgram: {
             Qt.quit()
@@ -32,6 +41,7 @@ ApplicationWindow {
 
     property string whatIs: ""
     property var listAlias: []
+    property bool isRegister: false
 
     Component.onCompleted: {
         var OPEN = 1,
@@ -61,13 +71,14 @@ ApplicationWindow {
             whatIs = "new program"
         }
 
-        easyExecution.regedit("ex");
+        isRegister = easyExecution.isRegister("ex")
         listAlias = easyExecution.getListOfPrograms()
         easyExecution.getCompleteList();
     }
 
-    MouseArea {
+    MouseArea { /// check max-min window can move and maximization window when is factible
         anchors.fill: parent
+
         property point lastMousePos: Qt.point(0, 0)
         property bool mousePressed: false
         onPressed: {
@@ -99,19 +110,16 @@ ApplicationWindow {
             anchors.fill: parent
             property point lastMousePos: Qt.point(0, 0)
             property bool mousePressed: false
+            cursorShape: Qt.SizeFDiagCursor
             onPressed: {
                 lastMousePos = Qt.point(mouse.x, mouse.y)
             }
             onPositionChanged: {
                 var delta = Qt.point(mouse.x - lastMousePos.x,
                                      mouse.y - lastMousePos.y)
-                if(window.width + delta.x < minimumWidth)
-                    window.width = minimumWidth
-                else window.width += delta.x
 
-                if(window.height + delta.y < minimumHeight)
-                    window.height = minimumHeight
-                else window.height += delta.y
+                window.width = Math.max(window.width + delta.x, minimumWidth)
+                window.height = Math.max(window.height + delta.y, minimumHeight)
             }
         }
     }
@@ -125,7 +133,7 @@ ApplicationWindow {
 
         Label {
             id: labelTitle
-            text: "Easy Execution"
+            text: "easy execution"
             font.bold: true
             font.pointSize: 14
             Layout.rightMargin: 10
@@ -171,36 +179,11 @@ ApplicationWindow {
                     dialogEasyExecution.open()
                 }
             }
-        }
-
-        Rectangle {
-            id: buttonHelp
-            width: 30
-            height: 30
-            color: "transparent"
-
-            property color rectColor: "#606060"
-            Label {
-                text: "?"
-                font.bold: true
-                font.pointSize: 16
-                color: parent.rectColor
-                anchors.centerIn: parent
-            }
-
-            property bool hover: false
-            property bool press: false
-
-            MouseArea {
-                anchors.fill: parent
-                hoverEnabled: true
-                onEntered: { parent.hover = true; parent.rectColor = parent.press ? "#aaa" : "#fff" }
-                onExited: { parent.hover = false; parent.rectColor = "#606060" }
-                onPressed: { parent.press = true; parent.rectColor = "#aaa" }
-                onReleased: { parent.press = false; parent.rectColor = parent.hover ? "#fff" : "#606060" }
-                onClicked: {
-
-                }
+            ToolTip {
+                text: "Add"
+                delay: 500
+                timeout: 2000
+                visible: parent.hover
             }
         }
 
@@ -232,8 +215,51 @@ ApplicationWindow {
                 onPressed: { parent.press = true; parent.rectSource = parent.sources[2] }
                 onReleased: { parent.press = false; parent.rectSource = parent.hover ? parent.sources[1] : parent.sources[0] }
                 onClicked: {
+                    dialogConfig.open()
+                }
+            }
+            ToolTip {
+                text: "Config"
+                delay: 500
+                timeout: 2000
+                visible: parent.hover
+            }
+        }
+
+        Rectangle {
+            id: buttonHelp
+            width: 30
+            height: 30
+            color: "transparent"
+
+            property color rectColor: "#606060"
+            Label {
+                text: "?"
+                font.bold: true
+                font.pointSize: 16
+                color: parent.rectColor
+                anchors.centerIn: parent
+            }
+
+            property bool hover: false
+            property bool press: false
+
+            /*MouseArea {
+                anchors.fill: parent
+                hoverEnabled: true
+                onEntered: { parent.hover = true; parent.rectColor = parent.press ? "#aaa" : "#fff" }
+                onExited: { parent.hover = false; parent.rectColor = "#606060" }
+                onPressed: { parent.press = true; parent.rectColor = "#aaa" }
+                onReleased: { parent.press = false; parent.rectColor = parent.hover ? "#fff" : "#606060" }
+                onClicked: {
 
                 }
+            }*/
+            ToolTip {
+                text: "Help"
+                delay: 500
+                timeout: 2000
+                visible: parent.hover
             }
         }
 
@@ -243,10 +269,27 @@ ApplicationWindow {
         }
 
         Label {
-            textFormat: Text.RichText
-            text: "<a>frank.siret@gmail.com</a>"
+            text: "frank.siret@gmail.com"
             font.pointSize: 9
-            //color: Qt.lighter("blue")
+            color: "#ce93d8"
+            property bool hover: false
+            MouseArea{
+                anchors.fill: parent
+                hoverEnabled: true
+                cursorShape: Qt.PointingHandCursor
+                onClicked: {
+                    Qt.openUrlExternally("mailto:frank.siret@gmail.com")
+                }
+                onHoveredChanged: {
+                    parent.font.underline = parent.hover = !parent.hover
+                }
+            }
+            ToolTip {
+                text: "Frank Rodríguez Siret"
+                delay: 500
+                timeout: 2000
+                visible: parent.hover
+            }
         }
 
         Rectangle {
@@ -286,24 +329,92 @@ ApplicationWindow {
         }
     }
 
+    function restore() {
+        listModel.clear()
+        for(var i=0; i<_model.length; i++){
+            listModel.append({
+                "programName":_model[i][0],
+                "aliasName":_model[i][1]
+            })
+        }
+    }
+
+    function filter(text) {
+        try {
+            var c=0
+            for(var i=0;i<_model.length;i++) {
+                var pn = _model[i][0]
+                var an = _model[i][1]
+                var arr = text.split(" ");
+
+                var b = true
+                //console.log(arr)
+                for(var j=0; j<arr.length;j++){
+                    var it=arr[j]
+                    if(it.length > 0 && an.match(it) === null && pn.match(it) === null) {
+                        b = false;
+                    }
+                }
+                if(!b) {
+                    listModel.remove(i-c++);
+                }
+            }
+            text0.text = ""
+        }
+        catch (err) {
+            //console.log(err)
+            text0.text = "Invalid regular expression"
+        }
+    }
+
+    Timer {
+        id: timeout
+        interval: 100
+        onTriggered: {
+            restore()
+            filter(search.text)
+        }
+    }
+
     TextField {
         id: search
         anchors.left: parent.left
         anchors.right: parent.right
         anchors.top: layoutTitle.bottom
         anchors.margins: 20
-        onTextEdited: {
-            console.log('edited')
-            var model = listModel
-
-            for( var i = 0;  i < model.count ; i++ ) {
-                console.log(model.get(i).programName, model.get(i).aliasName);
-            }
-
-            //model.append({"programName":'asd', "aliasName":'asdd'})
-            listModel.clear();
-            //listModel = model
+        placeholderText: "Filter"
+        selectByMouse: true
+        onTextChanged: timeout.restart()
+        onAccepted: {
+            if(listModel.count === 1)
+                Qt.openUrlExternally("file:///" + listModel.get(0).programName)
+            else listProgram.forceActiveFocus()
         }
+        focus: true
+        MouseArea {
+            anchors.fill: parent
+            acceptedButtons: Qt.RightButton
+            onClicked: search.clear()
+        }
+
+        Label {
+            id: text0
+            anchors.top: parent.bottom
+            anchors.topMargin: -5
+            anchors.left: parent.left
+            text: ""
+            font.pointSize: 9
+            color: Material.color(Material.Red)
+            height: 0
+
+            Behavior on height {
+                NumberAnimation { duration: 1500 }
+            }
+        }
+
+        KeyNavigation.tab: listProgram
+        KeyNavigation.down: listProgram
+        KeyNavigation.up: listProgram
     }
 
     property int maxAdvance: 0
@@ -320,29 +431,21 @@ ApplicationWindow {
         }
     }
 
-    ListView {
-        id: listProgram
-
-        anchors.left: parent.left
-        anchors.right: parent.right
-        //anchors.top: layoutTitle.bottom
-        anchors.top: search.bottom
-        anchors.bottom: parent.bottom
-        anchors.margins: 20
-
-        Layout.fillHeight: true
-        Layout.fillWidth: true
-        model: ListModel { id: listModel }
-        clip: true
-        ScrollBar.vertical: ScrollBar { }
-        delegate: Rectangle {
-            id: delegateRect
-            color: Qt.lighter("#303030")
+    Component {
+        id: delegateRect
+        Rectangle {
+            color: ListView.isCurrentItem ? "#50ce93d8" : Qt.lighter("#303030")
             anchors.left: parent.left
             anchors.right: parent.right
             height: 40
             radius: 2
             //anchors.margins: 2
+            Behavior on color {
+                ColorAnimation {
+                    duration: 200
+                }
+            }
+
             Rectangle {
                 id: rectTop
                 color: "transparent"
@@ -357,7 +460,11 @@ ApplicationWindow {
                     onPressed: rectTop.color = Qt.rgba(1,1,1,.2)
                     onReleased: rectTop.color = Qt.rgba(1,1,1,.1)
                     onCanceled: rectTop.color = Qt.rgba(1,1,1,.1)
-                    onDoubleClicked: Qt.openUrlExternally("file:///" + listModel.get(index).programName)
+                    onClicked: listProgram.currentIndex = index
+                    onDoubleClicked: {
+                        listProgram.currentIndex = index
+                        Qt.openUrlExternally("file:///" + listModel.get(index).programName)
+                    }
                 }
             }
             RowLayout {
@@ -456,7 +563,7 @@ ApplicationWindow {
                     Image {
                         anchors.centerIn: parent
                         anchors.horizontalCenterOffset: -2
-                        anchors.verticalCenterOffset: 2
+                        anchors.verticalCenterOffset: 1
                         source: "qrc:/img/garbage-2.svg"
                         fillMode: Image.PreserveAspectFit
                         sourceSize.width: 25
@@ -495,7 +602,62 @@ ApplicationWindow {
                 }
             }
         }
+    }
+
+    Component {
+        id: highlight
+        Rectangle {
+            color: "#00ce93d8"
+            border.color: "#ce93d8"
+            border.width: 2
+            radius: 2
+            anchors.left: listModel.count > 0 ? parent.left : undefined
+            anchors.right: listModel.count > 0 ? parent.right : undefined
+            height: 40
+            z: 2
+            y: listProgram.currentItem.y
+            Behavior on y {
+                NumberAnimation {
+                    duration: 100
+                }
+            }
+        }
+    }
+
+    ListView {
+        id: listProgram
+        anchors.left: parent.left
+        anchors.right: parent.right
+        anchors.top: search.bottom
+        anchors.bottom: parent.bottom
+        anchors.margins: 20
+        clip: true
         spacing: 10
+        model: ListModel { id: listModel }
+        delegate: delegateRect
+
+        highlight: highlight
+        highlightFollowsCurrentItem: false
+
+        ScrollBar.vertical: ScrollBar { }
+
+        KeyNavigation.tab: search
+        Keys.onPressed: {
+            if(event.key >= Qt.Key_A && event.key <= Qt.Key_Z) {
+                search.text = String.fromCharCode(event.key + 32)
+                search.forceActiveFocus()
+                event.accepted = true
+            }
+            else if(event.key === Qt.Key_Escape)
+            {
+                search.clear()
+                search.forceActiveFocus()
+                event.accepted = true
+            }
+            else if(event.key === Qt.Key_Return) {
+                Qt.openUrlExternally("file:///" + listModel.get(currentIndex).programName)
+            }
+        }
     }
 
     Dialog {
@@ -543,9 +705,17 @@ ApplicationWindow {
         }
 
         onAccepted: {
-            listModel.remove(index)
-            easyExecution.deleteKey(entity)
-            listAlias = easyExecution.getListOfPrograms()
+            var len = _model.length
+            var temp = []
+            for(var i=0; i<len; i++) {
+                if(_model[i][1] !== entity)
+                    temp.push(_model[i])
+            }
+            _model = temp
+            console.log(_model.length, _model)
+            //easyExecution.deleteKey(entity)
+            //listAlias = easyExecution.getListOfPrograms()
+            timeout.restart()
         }
 
         x: Math.max(0, window.width / 2 - width / 2)
@@ -572,7 +742,7 @@ ApplicationWindow {
             text2.text = ""
             text1.height = 0
             text2.height = 0
-            console.log("opened")
+            //console.log("opened")
         }
 
         contentItem: GridLayout {
@@ -600,7 +770,7 @@ ApplicationWindow {
                 id: aliasName
                 selectByMouse: true
                 onTextChanged: {
-                    console.log ( text )
+                    //console.log ( text )
                     dialogEasyExecution.aliasInUse = listAlias.indexOf(text.toLowerCase()) != -1
                 }
                 color: dialogEasyExecution.aliasInUse ? Material.color(Material.Red) : "white"
@@ -688,12 +858,13 @@ ApplicationWindow {
 
                             if ( !valid ) {
                                 text1.height = 20
-                                text1.text = "The Path does not exist"
+                                text1.text = "The Path doesn't exist"
                             }
                             else {
                                 easyExecution.append(pathName.text, aliasName.text)
                                 listAlias = easyExecution.getListOfPrograms()
-                                listModel.append({"programName": pathName.text, "aliasName": aliasName.text})
+                                _model.push([pathName.text, aliasName.text])
+                                timeout.restart()
                                 dialogEasyExecution.accept()
                             }
                         }
@@ -726,6 +897,97 @@ ApplicationWindow {
                     Layout.minimumWidth: 150
                     //Layout.fillWidth: true
                     //Layout.fillHeight: true
+                }
+            }
+        }
+
+        onAccepted: {
+            listAlias = easyExecution.getListOfPrograms()
+        }
+
+        x: Math.max(0, window.width / 2 - width / 2)
+        y: Math.max(0, window.height / 2 - height / 2 - 20)
+    }
+
+    Dialog {
+        id: dialogConfig
+        modal: true
+
+        title: "Config"
+        width: 400
+
+        signal opened()
+
+        onOpened: {
+            check1.checked = isRegister
+        }
+
+        contentItem: GridLayout {
+            anchors.margins: 20
+            anchors.bottomMargin: 14
+            columns: 2
+
+            columnSpacing: 10
+            rowSpacing: 5
+
+            CheckBox {
+                id: check1
+                text: "Add to Window's path"
+                Layout.fillWidth: true
+                checked: isRegister
+                onClicked: {
+                    if(checked) {
+                        isRegister = true
+                        easyExecution.regedit("ex")
+                    }
+                    else {
+                        isRegister = false
+                        easyExecution.deleteRegister("ex")
+                    }
+                }
+                Layout.columnSpan: 2
+            }
+
+            Label {
+                id: label1
+                text: "Alias for easy execution"
+            }
+            TextField {
+                id: textAlias
+                selectByMouse: true
+                onTextChanged: {
+                    console.log ( text )
+                    //dialogEasyExecution.aliasInUse = listAlias.indexOf(text.toLowerCase()) != -1
+                }
+                //color: dialogEasyExecution.aliasInUse ? Material.color(Material.Red) : "white"
+                onAccepted: {
+
+                }
+                readOnly: true
+                text: "ex"
+                placeholderText: "Default: ex"
+            }
+
+            Item {
+                height: 1
+                Layout.fillHeight: true
+                Layout.columnSpan: 2
+            }
+
+            RowLayout {
+                Layout.columnSpan: 2
+                spacing: 10
+
+                Item {
+                    width: 1
+                    Layout.fillWidth: true
+                }
+                Button {
+                    text: "Ok"
+                    onClicked: {
+                        dialogConfig.reject()
+                    }
+                    Layout.minimumWidth: 150
                 }
             }
         }

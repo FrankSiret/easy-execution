@@ -12,14 +12,17 @@ ApplicationWindow {
 
     minimumWidth: 500
     minimumHeight: 210
+    maximumHeight: 210
 
     color: "transparent"
+
+    title: qsTr("easy-execution")
 
     background: Rectangle {
         radius: 4
         color: "#303030"
-        //border.color: Material.color(Material.Purple)
-        //border.width: 1
+        border.color: Qt.darker("#303030")
+        border.width: 2
     }
 
     EasyExecution {
@@ -96,6 +99,7 @@ ApplicationWindow {
             anchors.fill: parent
             property point lastMousePos: Qt.point(0, 0)
             property bool mousePressed: false
+            cursorShape: Qt.SizeHorCursor
             onPressed: {
                 lastMousePos = Qt.point(mouse.x, mouse.y)
             }
@@ -103,13 +107,8 @@ ApplicationWindow {
                 var delta = Qt.point(mouse.x - lastMousePos.x,
                                      mouse.y - lastMousePos.y)
 
-                if(window.width + delta.x < minimumWidth)
-                    window.width = minimumWidth
-                else window.width += delta.x
-
-                if(window.height + delta.y < minimumHeight)
-                    window.height = minimumHeight
-                else window.height += delta.y
+                window.width = Math.max(window.width + delta.x, minimumWidth)
+                window.height = Math.max(Math.min(window.height + delta.y, maximumHeight), minimumHeight)
             }
         }
     }
@@ -241,10 +240,27 @@ ApplicationWindow {
         }
 
         Label {
-            textFormat: Text.RichText
-            text: "<a>frank.siret@gmail.com</a>"
+            text: "frank.siret@gmail.com"
             font.pointSize: 9
-            //color: Qt.lighter("blue")
+            color: "#ce93d8"
+            property bool hover: false
+            MouseArea{
+                anchors.fill: parent
+                hoverEnabled: true
+                cursorShape: Qt.PointingHandCursor
+                onClicked: {
+                    Qt.openUrlExternally("mailto:frank.siret@gmail.com")
+                }
+                onHoveredChanged: {
+                    parent.font.underline = parent.hover = !parent.hover
+                }
+            }
+            ToolTip {
+                text: "Frank Rodríguez Siret"
+                delay: 500
+                timeout: 2000
+                visible: parent.hover
+            }
         }
 
         Rectangle {

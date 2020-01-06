@@ -86,7 +86,7 @@ int main(int argc, char *argv[])
     app.setApplicationName("EasyExecution");
     app.setApplicationDisplayName("EasyExecution");
     app.setOrganizationName("Mirage's Company");
-    app.setApplicationVersion("1.2");
+    app.setApplicationVersion("1.3");
     app.setOrganizationDomain("easyexecution.franksiret.project.qt.com.cu");
 
     setContextMenu(app);
